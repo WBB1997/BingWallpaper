@@ -82,30 +82,35 @@ public class QihuWin extends Application {
         flowPane.prefHeightProperty().bind(scene.heightProperty());
 
         Menu menu = new Menu("分类");
-        for(Category category : categorys){
-            CheckMenuItem checkMenuItem = new CheckMenuItem(category.getName());
-            checkMenuItem.setOnAction(event -> {
-                if (!((CheckMenuItem) event.getTarget()).isSelected())
-                    ((CheckMenuItem) event.getTarget()).setSelected(true);
-                for (MenuItem checkMenuItem1 : menu.getItems()) {
-                    if (checkMenuItem1 != event.getSource())
-                        ((CheckMenuItem) checkMenuItem1).setSelected(false);
-                }
-                flowPane.getChildren().clear();
-                categoryId = category.getId();
-                page.set(0);
-                root.setVvalue(0);
-                flowPane.getChildren().add(getImagePane(page.getValue()));
-                page.set(page.getValue() + 1);
-                flowPane.getChildren().add(getImagePane(page.getValue()));
-            });
-            System.out.println(category.getId());
-            if(category.getId() == categoryId)
-                checkMenuItem.setSelected(true);
-            menu.getItems().add(checkMenuItem);
+        try {
+            for (Category category : categorys) {
+                CheckMenuItem checkMenuItem = new CheckMenuItem(category.getName());
+                checkMenuItem.setOnAction(event -> {
+                    if (!((CheckMenuItem) event.getTarget()).isSelected())
+                        ((CheckMenuItem) event.getTarget()).setSelected(true);
+                    for (MenuItem checkMenuItem1 : menu.getItems()) {
+                        if (checkMenuItem1 != event.getSource())
+                            ((CheckMenuItem) checkMenuItem1).setSelected(false);
+                    }
+                    flowPane.getChildren().clear();
+                    categoryId = category.getId();
+                    page.set(0);
+                    root.setVvalue(0);
+                    flowPane.getChildren().add(getImagePane(page.getValue()));
+                    page.set(page.getValue() + 1);
+                    flowPane.getChildren().add(getImagePane(page.getValue()));
+                });
+                System.out.println(category.getId());
+                if (category.getId() == categoryId)
+                    checkMenuItem.setSelected(true);
+                menu.getItems().add(checkMenuItem);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         borderPane.setTop(new MenuBar(menu));
+
         scene.getStylesheets().add("MainStyle.css");
         primaryStage.setScene(scene);
 //        primaryStage.setMaximized(true);
