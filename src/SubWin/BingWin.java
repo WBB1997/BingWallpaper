@@ -146,20 +146,20 @@ public class BingWin extends Application {
         BorderPane.setAlignment(listView, Pos.TOP_CENTER);
 
 
-        // 故事面板
-        textBox = new VBox();
-        textBox.setBackground(new Background(new BackgroundFill(Color.web("#636363"), null, null)));
-        textBox.setOpacity(0.8);
-        text = new Text();
-        text.setFont(Font.font ("微软雅黑" , FontWeight.BOLD, FontPosture.ITALIC, 14));
-        text.wrappingWidthProperty().bind(scene.widthProperty());
-        text.setFill(Color.WHITE);
-
+//        // 故事面板
+//        textBox = new VBox();
+//        textBox.setBackground(new Background(new BackgroundFill(Color.web("#636363"), null, null)));
+//        textBox.setOpacity(0.8);
+//        text = new Text();
+//        text.setFont(Font.font ("微软雅黑" , FontWeight.BOLD, FontPosture.ITALIC, 14));
+//        text.wrappingWidthProperty().bind(scene.widthProperty());
+//        text.setFill(Color.WHITE);
+//
         // 添加到面板
-        textBox.getChildren().add(text);
-        textBox.setPrefHeight(80);
-        borderPane.setBottom(textBox);
-        BorderPane.setAlignment(textBox, Pos.BOTTOM_CENTER);
+//        textBox.getChildren().add(text);
+//        textBox.setPrefHeight(80);
+//        borderPane.setBottom(textBox);
+//        BorderPane.setAlignment(textBox, Pos.BOTTOM_CENTER);
         root.getChildren().add(borderPane);
 
 

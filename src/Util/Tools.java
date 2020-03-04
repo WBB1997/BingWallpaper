@@ -11,11 +11,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Tools {
     public static void changeBackground(String destUrl) {
+        Pattern pattern = Pattern.compile("[\\s\\\\/:*?\"<>|]");
         String[] tmp = destUrl.trim().split("/");
-        File file = new File("wallpaper/" + tmp[tmp.length - 1]);
+        Matcher matcher = pattern.matcher(tmp[Math.max(tmp.length - 1, 0)]);
+        String filename = "wallpaper/" + matcher.replaceAll("");
+        File file = new File(filename);
         File fileParent = file.getParentFile();
         boolean flag = true;
         if (!fileParent.exists())
@@ -64,10 +69,11 @@ public class Tools {
     private interface MyUser32 extends StdCallLibrary {
 
         MyUser32 INSTANCE = Native.loadLibrary("user32", MyUser32.class);
+
         void SystemParametersInfoA(int uiAction, int uiParam, String fnm, int fWinIni);
     }
 
-    private static void change(String img){
+    private static void change(String img) {
 
         Advapi32Util.registrySetStringValue(WinReg.HKEY_CURRENT_USER,
                 "Control Panel\\Desktop", "Wallpaper", img);
@@ -85,6 +91,6 @@ public class Tools {
 
         // User32.System
         MyUser32.INSTANCE.SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0,
-                img, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE );
+                img, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
     }
 }
