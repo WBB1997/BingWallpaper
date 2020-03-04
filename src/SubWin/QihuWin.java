@@ -43,14 +43,13 @@ public class QihuWin extends Application {
     private SimpleIntegerProperty page = new SimpleIntegerProperty(0);
     private static final int pageSize = 5;
     private static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
-//    private static final ExecutorService fixedThreadPool = Executors.newSingleThreadExecutor();
     private final static int[][][] style =
             {{{0, 0, 2, 2}, {2, 0, 1, 1}, {3, 0, 1, 1}, {2, 1, 1, 1}, {3, 1, 1, 1}},
             {{0, 0, 1, 1}, {1, 0, 2, 2}, {3, 0, 1, 1}, {0, 1, 1, 1}, {3, 1, 1, 1}},
             {{0, 0, 1, 1}, {1, 0, 1, 1}, {2, 0, 2, 2}, {0, 1, 1, 1}, {1, 1, 1, 1}}};
     private FlowPane flowPane;
     private List<Category> categorys = QihuApi.getCategories();
-    private int  categoryId = 6;
+    private int  categoryId = 13;
 
     public static void main(String[] args) {
         launch(args);
@@ -100,7 +99,8 @@ public class QihuWin extends Application {
                 page.set(page.getValue() + 1);
                 flowPane.getChildren().add(getImagePane(page.getValue()));
             });
-            if(category.getId() == 6)
+            System.out.println(category.getId());
+            if(category.getId() == categoryId)
                 checkMenuItem.setSelected(true);
             menu.getItems().add(checkMenuItem);
         }

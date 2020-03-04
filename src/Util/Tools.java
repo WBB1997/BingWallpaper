@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Tools {
-
     public static void changeBackground(String destUrl) {
         String[] tmp = destUrl.trim().split("/");
         File file = new File("wallpaper/" + tmp[tmp.length - 1]);
