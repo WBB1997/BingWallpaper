@@ -67,6 +67,7 @@ public class BingApi {
                 // 网络连接
                 String head = "http://cn.bing.com/HPImageArchive.aspx?";
                 URL urlObject = new URL(head + "format=" + format + "&" + "idx=" + idx[i] + "&" + "n=" + n);
+                System.out.println(urlObject.toString());
                 URLConnection uc = urlObject.openConnection();
                 // 数据流连接
                 BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream(), StandardCharsets.UTF_8));

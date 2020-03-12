@@ -121,10 +121,8 @@ public class BingWin extends Application {
                 protected void succeeded() {
                     try {
                         StoryBean storyBean = get();
-                        String title = storyBean.getTitle();
                         String copyright = newValue.getCopyright();
-                        String story = storyBean.getPara1();
-                        text.setText(title + " " + copyright + "\n" + story);
+                        text.setText(copyright);
                         text.setSmooth(true);
                         FadeTransition ft = new FadeTransition(Duration.millis(500), text);
                         ft.setFromValue(0);
@@ -146,20 +144,20 @@ public class BingWin extends Application {
         BorderPane.setAlignment(listView, Pos.TOP_CENTER);
 
 
-//        // 故事面板
-//        textBox = new VBox();
-//        textBox.setBackground(new Background(new BackgroundFill(Color.web("#636363"), null, null)));
-//        textBox.setOpacity(0.8);
-//        text = new Text();
-//        text.setFont(Font.font ("微软雅黑" , FontWeight.BOLD, FontPosture.ITALIC, 14));
-//        text.wrappingWidthProperty().bind(scene.widthProperty());
-//        text.setFill(Color.WHITE);
-//
-        // 添加到面板
-//        textBox.getChildren().add(text);
-//        textBox.setPrefHeight(80);
-//        borderPane.setBottom(textBox);
-//        BorderPane.setAlignment(textBox, Pos.BOTTOM_CENTER);
+        // 故事面板
+        textBox = new VBox();
+        textBox.setBackground(new Background(new BackgroundFill(Color.web("#636363"), null, null)));
+        textBox.setOpacity(0.8);
+        text = new Text();
+        text.setFont(Font.font ("微软雅黑" , FontWeight.BOLD, FontPosture.ITALIC, 14));
+        text.wrappingWidthProperty().bind(scene.widthProperty());
+        text.setFill(Color.WHITE);
+
+        //添加到面板
+        textBox.getChildren().add(text);
+        textBox.setPrefHeight(80);
+        borderPane.setBottom(textBox);
+        BorderPane.setAlignment(textBox, Pos.BOTTOM_CENTER);
         root.getChildren().add(borderPane);
 
 
@@ -201,10 +199,8 @@ public class BingWin extends Application {
                     listView.getSelectionModel().select(0);
                     // 内容
                     StoryBean storyBean = new BingApi().getStory(timeAddOne(list.get(0).getStartdate()));
-                    String title = storyBean.getTitle();
                     String copyright = list.get(0).getCopyright();
-                    String story = storyBean.getPara1();
-                    text.setText(title + " " + copyright + "\n" + story);
+                    text.setText(copyright);
                     super.succeeded();
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
