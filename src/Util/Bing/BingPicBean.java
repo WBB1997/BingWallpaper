@@ -1,5 +1,7 @@
 package Util.Bing;
 
+import javafx.scene.image.Image;
+
 public class BingPicBean {
     private String startdate;
     private String fullstartdate;
@@ -16,6 +18,15 @@ public class BingPicBean {
     private String top;
     private String bot;
     private String hs;
+    private Image image;
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
 
     public String getStartdate() {
         return startdate;

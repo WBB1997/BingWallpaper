@@ -5,12 +5,18 @@ import Util.Bing.BingPicBean;
 import Util.Bing.StoryBean;
 import Util.Tools;
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -20,6 +26,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -37,11 +44,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RunnableFuture;
 
 public class BingWin extends Application {
-    private List<BingPicBean> list;
     private ListView<BingPicBean> listView;
     private ImageView imageview;
     private Text text;
@@ -52,21 +60,19 @@ public class BingWin extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) {
         primaryStage.setTitle("Bing今日美图");
         StackPane root = new StackPane();
         root.setPadding(Insets.EMPTY);
         Scene scene = new Scene(root, 1366, 768);
-
-        new Thread(() -> Tools.changeBackground(new BingApi().getAllImages().get(0).getUrl())).start();
 
         // 图像显示
         imageview = new ImageView();
         imageview.setPreserveRatio(true);
         imageview.setSmooth(true);
         imageview.setOnMouseClicked(event -> {
-            if(event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY ) {
-                if(!primaryStage.isFullScreen()) {
+            if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                if (!primaryStage.isFullScreen()) {
                     primaryStage.setFullScreen(true);
                     // 隐藏listview
                     TranslateTransition transition = new TranslateTransition();
@@ -80,10 +86,10 @@ public class BingWin extends Application {
                     bottom.setToY(textBox.getHeight());
                     bottom.setDuration(Duration.millis(500));
                     bottom.play();
-                }else{
+                } else {
                     primaryStage.setFullScreen(false);
                 }
-            }else if(event.getButton() == MouseButton.SECONDARY){
+            } else if (event.getButton() == MouseButton.SECONDARY) {
                 // 右键菜单
                 popMenu popMenu = new popMenu();
                 popMenu.addSaveMenu(primaryStage);
@@ -94,50 +100,44 @@ public class BingWin extends Application {
         imageview.fitHeightProperty().bind(root.heightProperty());
         root.getChildren().add(imageview);
 
-
         // 图像小图预览
         BorderPane borderPane = new BorderPane();
         // 设置面板不触发事件
 //        borderPane.setPickOnBounds(false);
         // 将flowpan面板的鼠标点击事件转交给imageview
         root.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-            if(event.getTarget().equals(borderPane))
+            if (event.getTarget().equals(borderPane))
                 imageview.fireEvent(event);
         });
+        // 列表
         listView = new ListView<>();
+        ObservableList<BingPicBean> items = FXCollections.observableArrayList();
+        listView.setItems(items);
         listView.setCellFactory(param -> new ImageCell());
         listView.setOrientation(Orientation.HORIZONTAL);
         listView.setMaxWidth(1142);
         listView.setMaxHeight(100);
+        // 点击小图的事件
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            imageview.setImage(new Image(newValue.getUrl()));
-            new Thread(new Task<StoryBean>() {
-                @Override
-                protected StoryBean call() {
-                    return new BingApi().getStory(timeAddOne(newValue.getStartdate()));
-                }
+            imageview.setImage(newValue.getImage());
+            String copyright = newValue.getCopyright();
+            text.setText(copyright);
+            text.setSmooth(true);
+            FadeTransition textFade = new FadeTransition(Duration.millis(500), text);
+            textFade.setFromValue(0);
+            textFade.setToValue(1);
+            //动画
+            FadeTransition imageViewFade = new FadeTransition(Duration.millis(200), imageview);
+            imageViewFade.setFromValue(0.5);
+            imageViewFade.setToValue(1);
 
-                @Override
-                protected void succeeded() {
-                    try {
-                        StoryBean storyBean = get();
-                        String copyright = newValue.getCopyright();
-                        text.setText(copyright);
-                        text.setSmooth(true);
-                        FadeTransition ft = new FadeTransition(Duration.millis(500), text);
-                        ft.setFromValue(0);
-                        ft.setToValue(1);
-                        ft.play();
-                        super.succeeded();
-                    }catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-            FadeTransition ft = new FadeTransition(Duration.millis(200), imageview);
-            ft.setFromValue(0.5);
-            ft.setToValue(1);
-            ft.play();
+            ParallelTransition parallelTransition = new ParallelTransition();
+            parallelTransition.getChildren().addAll(
+                    textFade,
+                    imageViewFade
+            );
+            parallelTransition.setCycleCount(1);
+            parallelTransition.play();
         });
         listView.setBackground(Background.EMPTY);
         borderPane.setTop(listView);
@@ -149,7 +149,7 @@ public class BingWin extends Application {
         textBox.setBackground(new Background(new BackgroundFill(Color.web("#636363"), null, null)));
         textBox.setOpacity(0.8);
         text = new Text();
-        text.setFont(Font.font ("微软雅黑" , FontWeight.BOLD, FontPosture.ITALIC, 14));
+        text.setFont(Font.font("微软雅黑", FontWeight.BOLD, FontPosture.ITALIC, 14));
         text.wrappingWidthProperty().bind(scene.widthProperty());
         text.setFill(Color.WHITE);
 
@@ -164,47 +164,60 @@ public class BingWin extends Application {
         primaryStage.setScene(scene);
         primaryStage.fullScreenProperty().addListener((observable, oldValue, newValue) -> {
             // 当屏幕退出最大化时恢复listview
-            if(!newValue) {
+            if (!newValue) {
+                // 顶部列表
                 TranslateTransition top = new TranslateTransition();
                 top.setNode(listView);
                 top.setToY(0);
                 top.setDuration(Duration.millis(500));
-                top.play();
-                TranslateTransition  bottom = new TranslateTransition();
+                TranslateTransition bottom = new TranslateTransition();
+                // 底部列表
                 bottom.setNode(textBox);
                 // 是相对于textbox的y坐标，此时textbox的y相对于之前的移动等于80
                 bottom.setToY(0);
                 bottom.setDuration(Duration.millis(500));
-                bottom.play();
+                // 并行动画
+                ParallelTransition parallelTransition = new ParallelTransition();
+                parallelTransition.getChildren().addAll(
+                        top,
+                        bottom
+                );
+                parallelTransition.setCycleCount(1);
+                parallelTransition.play();
             }
         });
         // 这里路径前面要加file
         primaryStage.getIcons().add(new Image("file:res/icon.jpg"));
         primaryStage.show();
-
-        //填充数据
-        new Thread(new Task<List<BingPicBean>>() {
+        // 异步填充列表
+        new Thread(new Task<BingPicBean>() {
             @Override
-            protected List<BingPicBean> call() {
-                return new BingApi().getAllImages();
-            }
+            protected BingPicBean call() {
+                BingApi.getAllImages(new BingApi.ImageStreamListener() {
+                    @Override
+                    public void produce(Object obj) {
+                        BingPicBean bingPicBean = (BingPicBean) obj;
+                        bingPicBean.setImage(new Image(bingPicBean.getUrl()));
+                        // 添加到列表
+                        Platform.runLater(() -> {
+                            items.add(bingPicBean);
+                            if(items.size() == 1)
+                                listView.getSelectionModel().select(0);
+                        });
+                        System.out.println("ImageCell 添加图片 " + bingPicBean.getCopyright());
+                    }
 
-            @Override
-            protected void succeeded() {
-                try {
-                    list = get();
-                    imageview.setImage(new Image(list.get(0).getUrl()));
-                    ObservableList<BingPicBean> items = FXCollections.observableArrayList(list);
-                    listView.setItems(items);
-                    listView.getSelectionModel().select(0);
-                    // 内容
-                    StoryBean storyBean = new BingApi().getStory(timeAddOne(list.get(0).getStartdate()));
-                    String copyright = list.get(0).getCopyright();
-                    text.setText(copyright);
-                    super.succeeded();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+                    @Override
+                    public void onComplete() {
+                        Tools.changeBackground(BingApi.getAllImages().get(0).getUrl());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+                });
+                return null;
             }
         }).start();
     }
@@ -219,32 +232,23 @@ public class BingWin extends Application {
                 ImageView imageview = new ImageView();
                 vBox.getChildren().add(imageview);
                 Label time = new Label();
-                new Thread(new Task<String>() {
-                    @Override
-                    protected String call() {
-                        return item.getUrl();
-                    }
-
-                    @Override
-                    protected void succeeded() {
-                        try {
-                            imageview.setImage(new Image(get(), 100, 100, true, false));
-                            time.setText(item.getStartdate());
-                            time.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 15));
-                            vBox.setAlignment(Pos.CENTER);
-                            vBox.setSpacing(5);
-                            vBox.getChildren().add(time);
-                            setGraphic(vBox);
-                            super.succeeded();
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                imageview.setImage(item.getImage());
+                imageview.setFitHeight(100);
+                imageview.setFitWidth(100);
+                imageview.setSmooth(true);
+                imageview.setPreserveRatio(true);
+                time.setText(item.getStartdate());
+                time.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 15));
+                vBox.setAlignment(Pos.CENTER);
+                vBox.setSpacing(5);
+                vBox.getChildren().add(time);
+                setGraphic(vBox);
             } else {
                 setGraphic(null);
             }
         }
+
+
     }
 
     // 右键菜单
@@ -256,7 +260,7 @@ public class BingWin extends Application {
             getItems().add(setWallpaper);
         }
 
-        void addSaveMenu(Stage stage){
+        void addSaveMenu(Stage stage) {
             MenuItem savePic = new MenuItem("保存到本地");
             savePic.setOnAction(event -> {
                 FileChooser fileChooser = new FileChooser();
@@ -268,7 +272,7 @@ public class BingWin extends Application {
                 File file = fileChooser.showSaveDialog(stage);
                 if (file != null) {
                     try {
-                        ImageIO.write(SwingFXUtils.fromFXImage(imageview.getImage(),null), "png", file);
+                        ImageIO.write(SwingFXUtils.fromFXImage(imageview.getImage(), null), "png", file);
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -279,13 +283,14 @@ public class BingWin extends Application {
         }
     }
 
+    // 给列表添加时间
     private String timeAddOne(String time) {
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
         try {
             Date date = df.parse(time);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            calendar.add(Calendar.DAY_OF_YEAR , 1);
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
             return df.format(calendar.getTime());
         } catch (ParseException e) {
             e.printStackTrace();
