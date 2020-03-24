@@ -1,22 +1,17 @@
-package SubWin;
+package Start;
 
 import Util.Bing.BingApi;
 import Util.Bing.BingPicBean;
-import Util.Bing.StoryBean;
 import Util.Tools;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -26,7 +21,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -42,12 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RunnableFuture;
+import java.util.*;
 
 public class BingWin extends Application {
     private ListView<BingPicBean> listView;
@@ -209,7 +198,7 @@ public class BingWin extends Application {
 
                     @Override
                     public void onComplete() {
-                        Tools.changeBackground(BingApi.getAllImages().get(0).getUrl());
+                        Tools.changeBackground(Objects.requireNonNull(BingApi.getImages(1, 1)).get(0).getUrl());
                     }
 
                     @Override
