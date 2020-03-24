@@ -13,12 +13,12 @@ import java.util.*;
 
 public class BingApi {
     // imagesize
-    private static final List<String> imageSize = new ArrayList<>(Arrays.asList("1920x1080", "1366x768", "1280x768", "1080x1920","1024x768","800x600",
-            "800x480", "768x1366", "768x1280", "720x1280","640x480", "480x800", "400x240", "320x240", "240x320"));
+    private static final List<String> imageSize = new ArrayList<>(Arrays.asList("1920x1080", "1366x768", "1280x768", "1080x1920", "1024x768", "800x600",
+            "800x480", "768x1366", "768x1280", "720x1280", "640x480", "480x800", "400x240", "320x240", "240x320"));
     private static String defaultSize = "1920x1080";
 
     public static void main(String[] args) {
-        for(BingPicBean picBean : getAllImages())
+        for (BingPicBean picBean : getAllImages())
             System.out.println(picBean);
     }
 
@@ -43,8 +43,8 @@ public class BingApi {
         return JSONObject.parseObject(jsonString, StoryBean.class);
     }
 
-    public static List<BingPicBean> getAllImages(){
-        return getImages(1,16);
+    public static List<BingPicBean> getAllImages() {
+        return getImages(1, 16);
     }
 
     public static List<BingPicBean> getImages(int start, int end) {
@@ -59,8 +59,8 @@ public class BingApi {
         String format = "js";
         int[] idx = {-1, 8};
         int n = 8;
-        String jsonString ;
-        for(int i = 0; i < 2; ++i) {
+        String jsonString;
+        for (int i = 0; i < 2; ++i) {
             try {
                 // 网络连接
                 String head = "http://cn.bing.com/HPImageArchive.aspx?";
@@ -76,7 +76,7 @@ public class BingApi {
                 e.printStackTrace();
                 return null;
             }
-            if(jsonString != null) {
+            if (jsonString != null) {
                 JSONArray array = JSONObject.parseObject(jsonString).getJSONArray("images");
                 for (Object o : array) {
                     BingPicBean picBean = JSONObject.parseObject(((JSONObject) o).toJSONString(), BingPicBean.class);
@@ -90,8 +90,8 @@ public class BingApi {
         return res.subList(start - 1, end);
     }
 
-    public static void getAllImages(ImageStreamListener listener){
-        getImages(1,16, listener);
+    public static void getAllImages(ImageStreamListener listener) {
+        getImages(1, 16, listener);
     }
 
     public static void getImages(int start, int end, ImageStreamListener listener) {
@@ -104,9 +104,9 @@ public class BingApi {
 
         String format = "js";
         Map<Integer, Integer> idx = new HashMap();
-        idx.put(-1,7);
-        idx.put(8,8);
-        String jsonString ;
+        idx.put(-1, 7);
+        idx.put(8, 8);
+        String jsonString;
         for (Map.Entry<Integer, Integer> m : idx.entrySet()) {
             try {
                 // 网络连接

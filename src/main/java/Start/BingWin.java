@@ -193,7 +193,7 @@ public class BingWin extends Application {
                             if(items.size() == 1)
                                 listView.getSelectionModel().select(0);
                         });
-                        System.out.println("ImageCell 添加图片 " + bingPicBean.getCopyright());
+                        System.out.println("ImageCell 添加图片 " + bingPicBean.getUrl());
                     }
 
                     @Override
@@ -246,7 +246,7 @@ public class BingWin extends Application {
 
         private popMenu() {
             MenuItem setWallpaper = new MenuItem("设置为壁纸                ");
-            setWallpaper.setOnAction(event -> new Thread(() -> Tools.changeBackground(listView.getSelectionModel().getSelectedItem().getUrl())).start());
+            setWallpaper.setOnAction(event -> new Thread(() -> Tools.changeBackground(listView.getSelectionModel().getSelectedItem().getUrl(), listView.getSelectionModel().getSelectedItem().getCopyright())).start());
             getItems().add(setWallpaper);
         }
 

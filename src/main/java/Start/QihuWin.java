@@ -246,11 +246,11 @@ public class QihuWin extends Application {
             MenuItem image_1024 = new MenuItem("1024X768");
             MenuItem image_800 = new MenuItem("800X600");
             setWallpaper.getItems().addAll(image_org, image_2560,image_1440,image_1024,image_800);
-            image_org.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getUrl())).start());
-            image_2560.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_2560_1440())).start());
-            image_1440.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_1440_900())).start());
-            image_1024.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_1024_768())).start());
-            image_800.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_800_600())).start());
+            image_org.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getUrl(), qihuPicBean.getUrl())).start());
+            image_2560.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_2560_1440(),qihuPicBean.getUrl())).start());
+            image_1440.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_1440_900(),qihuPicBean.getUrl())).start());
+            image_1024.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_1024_768(),qihuPicBean.getUrl())).start());
+            image_800.setOnAction(event -> new Thread(() -> Tools.changeBackground(qihuPicBean.getImg_800_600(), qihuPicBean.getUrl())).start());
             getItems().add(setWallpaper);
         }
 

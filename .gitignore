@@ -4,3 +4,5 @@
 /out
 .idea/artifacts/
 /wallpaper
+/target
+src/test/
