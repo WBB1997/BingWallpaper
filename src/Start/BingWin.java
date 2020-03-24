@@ -198,7 +198,8 @@ public class BingWin extends Application {
 
                     @Override
                     public void onComplete() {
-                        Tools.changeBackground(Objects.requireNonNull(BingApi.getImages(1, 1)).get(0).getUrl());
+                        // 不自动换壁纸
+//                        Tools.changeBackground(Objects.requireNonNull(BingApi.getImages(1, 1)).get(0).getUrl());
                     }
 
                     @Override
