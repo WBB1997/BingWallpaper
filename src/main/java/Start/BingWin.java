@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -64,17 +65,23 @@ public class BingWin extends Application {
                 if (!primaryStage.isFullScreen()) {
                     primaryStage.setFullScreen(true);
                     // 隐藏listview
-                    TranslateTransition transition = new TranslateTransition();
-                    transition.setNode(listView);
-                    transition.setToY(-listView.getHeight());
-                    transition.setDuration(Duration.millis(500));
-                    transition.play();
+                    TranslateTransition top = new TranslateTransition();
+                    top.setNode(listView);
+                    top.setToY(-listView.getHeight());
+                    top.setDuration(Duration.millis(500));
                     // 隐藏文字
                     TranslateTransition bottom = new TranslateTransition();
                     bottom.setNode(textBox);
                     bottom.setToY(textBox.getHeight());
                     bottom.setDuration(Duration.millis(500));
-                    bottom.play();
+                    //同时运行
+                    ParallelTransition parallelTransition = new ParallelTransition();
+                    parallelTransition.getChildren().addAll(
+                            top,
+                            bottom
+                    );
+                    parallelTransition.setCycleCount(1);
+                    parallelTransition.play();
                 } else {
                     primaryStage.setFullScreen(false);
                 }
@@ -106,6 +113,7 @@ public class BingWin extends Application {
         listView.setOrientation(Orientation.HORIZONTAL);
         listView.setMaxWidth(1142);
         listView.setMaxHeight(100);
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         // 点击小图的事件
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             imageview.setImage(newValue.getImage());
@@ -120,6 +128,7 @@ public class BingWin extends Application {
             imageViewFade.setFromValue(0.5);
             imageViewFade.setToValue(1);
 
+            //同时运行
             ParallelTransition parallelTransition = new ParallelTransition();
             parallelTransition.getChildren().addAll(
                     textFade,
@@ -127,6 +136,27 @@ public class BingWin extends Application {
             );
             parallelTransition.setCycleCount(1);
             parallelTransition.play();
+
+            // 如果是在全屏状态下浏览，且在访问第一张
+            if(primaryStage.isFullScreen()){
+                System.out.println("FullScreen");
+                primaryStage.setFullScreenExitHint("正在访问第一张");
+                primaryStage.setFullScreen(true);
+            }
+        });
+        // 循环List
+        listView.setOnKeyPressed(event -> {
+            int size = listView.getItems().size();
+            int index = listView.getSelectionModel().getSelectedIndex();
+            if ((index == size - 1 && event.getCode() == KeyCode.RIGHT)) {
+                listView.getSelectionModel().selectFirst();
+                listView.scrollTo(0);
+                event.consume();
+            } else if (index == 0 && event.getCode() == KeyCode.LEFT) {
+                listView.getSelectionModel().selectLast();
+                listView.scrollTo(size - 1);
+                event.consume();
+            }
         });
         listView.setBackground(Background.EMPTY);
         borderPane.setTop(listView);
@@ -148,7 +178,6 @@ public class BingWin extends Application {
         borderPane.setBottom(textBox);
         BorderPane.setAlignment(textBox, Pos.BOTTOM_CENTER);
         root.getChildren().add(borderPane);
-
 
         primaryStage.setScene(scene);
         primaryStage.fullScreenProperty().addListener((observable, oldValue, newValue) -> {
@@ -190,7 +219,7 @@ public class BingWin extends Application {
                         // 添加到列表
                         Platform.runLater(() -> {
                             items.add(bingPicBean);
-                            if(items.size() == 1)
+                            if (items.size() == 1)
                                 listView.getSelectionModel().select(0);
                         });
                         System.out.println("ImageCell 添加图片 " + bingPicBean.getUrl());

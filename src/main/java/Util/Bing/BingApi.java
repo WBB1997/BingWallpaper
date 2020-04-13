@@ -18,8 +18,7 @@ public class BingApi {
     private static String defaultSize = "1920x1080";
 
     public static void main(String[] args) {
-        for (BingPicBean picBean : getAllImages())
-            System.out.println(picBean);
+
     }
 
     public static StoryBean getStory(String date) {

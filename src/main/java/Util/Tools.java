@@ -44,7 +44,6 @@ public class Tools {
             if (!fileParent.exists())
                 flag = fileParent.mkdir();
             if (flag) {
-
                 save(srcUrl, file, waterMark.replace("©","Copyright"));
                 change(file.getAbsolutePath());
             } else
